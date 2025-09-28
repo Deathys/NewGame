@@ -208,8 +208,9 @@ public class QuickPlayerSetup : MonoBehaviour
         Goblin goblinScript = goblin.AddComponent<Goblin>();
         goblinScript.contactDamage = 1; // Меньше урона
 
-        // Add debug component
+        // Add debug component and health bar
         goblin.AddComponent<EnemyHealthDebugger>();
+        goblin.AddComponent<EnemyHealthBar>();
 
         Debug.Log($"Goblin created at {position}");
     }
@@ -237,8 +238,9 @@ public class QuickPlayerSetup : MonoBehaviour
         Bat batScript = bat.AddComponent<Bat>();
         batScript.contactDamage = 1; // Меньше урона
 
-        // Add debug component
+        // Add debug component and health bar
         bat.AddComponent<EnemyHealthDebugger>();
+        bat.AddComponent<EnemyHealthBar>();
 
         Debug.Log($"Bat created at {position}");
     }

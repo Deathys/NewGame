@@ -19,7 +19,7 @@ public abstract class EnemyBase : MonoBehaviour
     [Range(0f, 1f)]
     public float currencyDropChance = 0.8f;
 
-    protected int currentHealth;
+    public int currentHealth;
 
     protected virtual void Awake()
     {
