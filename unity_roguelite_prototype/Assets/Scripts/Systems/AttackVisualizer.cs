@@ -33,7 +33,8 @@ public class AttackVisualizer : MonoBehaviour
         weaponRenderer = weapon.AddComponent<SpriteRenderer>();
         weaponRenderer.sprite = GenerateWeaponSprite();
         weaponRenderer.color = Color.gray;
-        weaponRenderer.sortingOrder = 1;
+        weaponRenderer.sortingLayerName = "Characters";
+        weaponRenderer.sortingOrder = 11; // Above player in Characters layer
     }
 
     void CreateAttackEffect()
@@ -45,7 +46,8 @@ public class AttackVisualizer : MonoBehaviour
         SpriteRenderer effectRenderer = attackEffect.AddComponent<SpriteRenderer>();
         effectRenderer.sprite = GenerateAttackEffectSprite();
         effectRenderer.color = attackColor;
-        effectRenderer.sortingOrder = 2;
+        effectRenderer.sortingLayerName = "Characters";
+        effectRenderer.sortingOrder = 12; // Above weapon in Characters layer
 
         attackEffect.SetActive(false);
     }
@@ -115,7 +117,7 @@ public class AttackVisualizer : MonoBehaviour
         texture.SetPixels(pixels);
         texture.Apply();
 
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.1f), 100f);
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.1f), TileSystem.PIXELS_PER_UNIT);
     }
 
     Sprite GenerateAttackEffectSprite()
@@ -142,6 +144,6 @@ public class AttackVisualizer : MonoBehaviour
         texture.SetPixels(pixels);
         texture.Apply();
 
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), TileSystem.PIXELS_PER_UNIT);
     }
 }
