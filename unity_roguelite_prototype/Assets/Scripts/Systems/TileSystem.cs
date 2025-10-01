@@ -39,14 +39,6 @@ public static class TileSystem
         BoxCollider2D collider = platform.AddComponent<BoxCollider2D>();
         collider.size = platformSize;
 
-        // For platforms taller than 1 tile, adjust collider to only cover bottom part
-        if (tilesHeight > 1)
-        {
-            // Make collider only 1 tile high at the bottom
-            collider.size = new Vector2(platformSize.x, TILE_SIZE);
-            collider.offset = new Vector2(0, -(tilesHeight - 1) * TILE_SIZE * 0.5f);
-        }
-
         // Set layer
         platform.layer = LayerMask.NameToLayer("Ground") != -1 ? LayerMask.NameToLayer("Ground") : 0;
 

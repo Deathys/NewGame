@@ -11,23 +11,25 @@ public class QuickPlayerSetup : MonoBehaviour
     public Color playerColor = Color.blue;
 
     [Tooltip("Size of the player (width and height).")]
-    public Vector2 playerSize = new Vector2(0.8f, 1.8f);
+    public Vector2 playerSize = new Vector2(0.4f, 0.9f);
 
     [ContextMenu("Create Basic Player")]
     public void CreateBasicPlayer()
     {
-        // Check if player already exists
+        // Check if player already exists and destroy it
         GameObject existingPlayer = GameObject.FindGameObjectWithTag("Player");
         if (existingPlayer != null)
         {
-            Debug.LogWarning("Player already exists in scene: " + existingPlayer.name);
-            return;
+            Debug.Log("Destroying existing player: " + existingPlayer.name);
+            DestroyImmediate(existingPlayer);
         }
 
         // Create player GameObject
         GameObject player = new GameObject("Player");
         player.tag = "Player";
-        player.transform.position = new Vector3(0, -1.0f, 0f); // On top of the main ground
+        // Main ground is at Y=-2.5, height=2, so top is at Y=-1.5
+        // Player pivot will be at bottom, so position = bottom of player
+        player.transform.position = new Vector3(0, -1.5f, 0f); // On top of the main ground
 
         // Add SpriteRenderer with a simple colored sprite
         SpriteRenderer spriteRenderer = player.AddComponent<SpriteRenderer>();
@@ -41,26 +43,27 @@ public class QuickPlayerSetup : MonoBehaviour
         rb.gravityScale = 3f;
         rb.freezeRotation = true;
 
-        // Add BoxCollider2D
+        // Add BoxCollider2D - offset upward since sprite pivot is at bottom
         BoxCollider2D collider = player.AddComponent<BoxCollider2D>();
         collider.size = playerSize;
+        collider.offset = new Vector2(0, playerSize.y / 2); // Shift collider up to match sprite
 
         // Add PlayerController
         PlayerController playerController = player.AddComponent<PlayerController>();
 
-        // Create GroundCheck child
+        // Create GroundCheck child (at player's feet, which is pivot position)
         GameObject groundCheck = new GameObject("GroundCheck");
         groundCheck.transform.SetParent(player.transform);
-        groundCheck.transform.localPosition = new Vector3(0, -playerSize.y / 2, 0);
+        groundCheck.transform.localPosition = new Vector3(0, 0, 0); // At pivot (feet)
         playerController.groundCheck = groundCheck.transform;
 
         // Add PlayerAttack
         PlayerAttack playerAttack = player.AddComponent<PlayerAttack>();
 
-        // Create AttackHitbox child
+        // Create AttackHitbox child (at player's center height)
         GameObject attackHitbox = new GameObject("AttackHitbox");
         attackHitbox.transform.SetParent(player.transform);
-        attackHitbox.transform.localPosition = new Vector3(playerSize.x / 2 + 0.5f, 0, 0);
+        attackHitbox.transform.localPosition = new Vector3(playerSize.x / 2 + 0.5f, playerSize.y / 2, 0);
 
         BoxCollider2D attackCollider = attackHitbox.AddComponent<BoxCollider2D>();
         attackCollider.isTrigger = true;
@@ -176,8 +179,8 @@ public class QuickPlayerSetup : MonoBehaviour
     public void CreateBasicGround()
     {
         // Create main ground platform using tile system
-        // 20 tiles wide, 2 tiles high
-        GameObject ground = TileSystem.CreateTiledPlatform("Main Ground", new Vector3(0, -3f, 0), 20, 2, TileType.Grass);
+        // 20 tiles wide, 2 tiles high, centered at origin
+        GameObject ground = TileSystem.CreateTiledPlatform("Main Ground", new Vector3(0f, -2.5f, 0), 20, 2, TileType.Grass);
 
         Debug.Log("Basic Ground created successfully using tile system");
     }
@@ -196,16 +199,17 @@ public class QuickPlayerSetup : MonoBehaviour
         texture.SetPixels(pixels);
         texture.Apply();
 
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), TileSystem.PIXELS_PER_UNIT);
+        // Pivot at bottom center (0.5, 0) so sprite grows upward from feet
+        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0f), TileSystem.PIXELS_PER_UNIT);
     }
 
 
     [ContextMenu("Create Basic Enemies")]
     public void CreateBasicEnemies()
     {
-        // Place goblins on the main ground
-        CreateGoblin(new Vector3(5f, -2.3f, 0f));   // On main ground
-        CreateGoblin(new Vector3(-5f, -2.3f, 0f)); // On main ground
+        // Place goblins on the main ground (ground is at Y=-2.5, height=2, so top is at Y=-1.5)
+        CreateGoblin(new Vector3(5f, -0.8f, 0f));   // On main ground
+        CreateGoblin(new Vector3(-5f, -0.8f, 0f)); // On main ground
 
         // Place bats in the air
         CreateBat(new Vector3(3f, 2f, 0f));
@@ -300,18 +304,18 @@ public class QuickPlayerSetup : MonoBehaviour
     [ContextMenu("Create Additional Platforms")]
     public void CreateAdditionalPlatforms()
     {
-        // Stone platform - 4 tiles wide, 3 tiles high (to match visual size)
-        TileSystem.CreateTiledPlatform("Stone Platform", new Vector3(-6f, 0f, 0f), 4, 3, TileType.Stone);
+        // Stone platform - 4 tiles wide, 3 tiles high
+        TileSystem.CreateTiledPlatform("Stone Platform", new Vector3(-6f, 1f, 0f), 4, 3, TileType.Stone);
 
         // Metal platform - 3 tiles wide, 3 tiles high
-        TileSystem.CreateTiledPlatform("Metal Platform", new Vector3(6f, 2f, 0f), 3, 3, TileType.Metal);
+        TileSystem.CreateTiledPlatform("Metal Platform", new Vector3(6f, 3f, 0f), 3, 3, TileType.Metal);
 
-        // Grass platform - 5 tiles wide, 1 tile high (this one is actually thin)
-        TileSystem.CreateTiledPlatform("Grass Platform", new Vector3(0f, 4f, 0f), 5, 1, TileType.Grass);
+        // Grass platform - 5 tiles wide, 1 tile high
+        TileSystem.CreateTiledPlatform("Grass Platform", new Vector3(0f, 4.5f, 0f), 5, 1, TileType.Grass);
 
-        // Some single tiles for jumping - make them bigger too
-        TileSystem.CreateTiledPlatform("Stone Tile", new Vector3(-3f, 6f, 0f), 1, 3, TileType.Stone);
-        TileSystem.CreateTiledPlatform("Metal Tile", new Vector3(3f, 6f, 0f), 1, 3, TileType.Metal);
+        // Single tiles for jumping
+        TileSystem.CreateTiledPlatform("Stone Tile", new Vector3(-3f, 7f, 0f), 1, 3, TileType.Stone);
+        TileSystem.CreateTiledPlatform("Metal Tile", new Vector3(3f, 7f, 0f), 1, 3, TileType.Metal);
 
         Debug.Log("Additional platforms created using tile system!");
     }
@@ -320,7 +324,7 @@ public class QuickPlayerSetup : MonoBehaviour
     [ContextMenu("Setup Complete Scene")]
     public void SetupCompleteScene()
     {
-        CreateBasicCamera();
+        // CreateBasicCamera(); // Camera is now static in the scene
         CreateBasicGround();
         CreateBasicPlayer();
         CreateBasicEnemies();
